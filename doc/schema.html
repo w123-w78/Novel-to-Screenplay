@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YAML Schema 规范文档 · Novel-to-Screenplay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #fcfbf9;
+      --text-color: #2c2a29;
+      --primary-color: #8c2d19;
+      --border-color: #e6e1da;
+      --code-bg: #f4ede2;
+    }
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      line-height: 1.8;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Noto Serif SC', serif;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      font-family: 'Noto Serif SC', serif;
+      color: #4a3c31;
+      margin-top: 40px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    h3 {
+      color: var(--primary-color);
+      margin-top: 25px;
+    }
+    p { margin: 12px 0; text-align: justify; }
+    ul, ol { padding-left: 20px; }
+    li { margin: 8px 0; }
+    
+    /* Code block styling */
+    pre {
+      background-color: var(--code-bg);
+      border-left: 4px solid var(--primary-color);
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0e6d6;
+      font-weight: 700;
+    }
+    
+    .blockquote {
+      background: #f5f0e6;
+      border-left: 4px solid #cfb997;
+      padding: 15px;
+      margin: 20px 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Novel-to-Screenplay 剧本 YAML Schema 规范文档</h1>
+    
+    <p>本规范定义了由小说文本（三章以上）自动化改编为影视剧本时的结构化数据交换格式（YAML Schema）。通过该 Schema，AI 提炼的文学内容能够无缝转换为可编辑、可直接用于生产环境的结构化剧本数据。</p>
+
+    <h2>一、为什么选择 YAML 格式？</h2>
+    <p>在传统的软件工程中，结构化数据通常首选 JSON 或 XML。然而在本创作工具中，我们选择 <strong>YAML (YAML Ain't Markup Language)</strong> 作为剧本输出格式，核心设计原因如下：</p>
+    <ul>
+      <li><strong>极佳的可读性（Human-Readable）：</strong> 剧本的本质是文学与影视的结合，创作者（编剧、导演）需要高频阅读剧本。YAML 没有 JSON 复杂的层层大括号 <code>{}</code> 和方括号 <code>[]</code>，也没有 XML 冗长的标签，极其契合剧本所要求的干净、无干扰的阅读体验。</li>
+      <li><strong>AI 生成稳定性（LLM Friendly）：</strong> 大语言模型在输出文本时，符号越少，语法出错（如漏掉逗号、括号不匹配）的概率就越低。YAML 依靠严格的换行和缩进表达层级，能有效缩减 Token 消耗，并极大提升 AI 一次性生成长剧本的成功率。</li>
+      <li><strong>易于人工二次打磨：</strong> 生成的剧本是初稿，编剧后续可在任意文本编辑器中直接修改、增删台词，格式不易崩塌。</li>
+    </ul>
+
+    <h2>二、YAML Schema 定义</h2>
+    <p>以下为标准的剧本数据骨架及节点约束：</p>
+    
+    <pre>
+screenplay:
+  meta:
+    title: string          # 作品/剧本名称
+    genre: string          # 题材类型（如：悬疑、爱情、科幻）
+    author: string         # 原著作者
+    adapter: string        # 改编者（固定为 "Novel-to-Screenplay AI"）
+    version: string        # 剧本版本号（初稿默认为 "1.0"）
+    logline: string        # 故事一句话简介（故事线，不超过50字）
+
+  characters:              # 角色档案列表（全局去重）
+    - name: string         # 角色姓名
+      role: string         # 角色定位（protagonist/antagonist/supporting/minor）
+      description: string  # 角色外貌、性格及原著背景简述
+
+  acts:                    # 幕（Act）级别切分
+    - act_number: integer  # 幕序（标准三幕式：1, 2, 3）
+      title: string        # 本幕核心冲突或主题
+      scenes:              # 场景（Scene）列表
+        - scene_id: string           # 唯一场景编号（采用 A1S1 即第一幕第一场格式）
+          chapter_source: string     # 映射的原著小说章节（如 "第一章"）
+          location: string           # 场景发生地点（日景/夜景、室内/室外）
+          time_of_day: string        # 发生时间段（DAY/NIGHT/DAWN/DUSK/CONTINUOUS）
+          atmosphere: string         # 舞台氛围说明（如：阴冷、死寂、剑拔弩张）
+          beats:                     # 场景内的最小戏剧行为单元（信息流/节拍）
+            - type: string           # 单元类型（action/dialogue/transition）
+              character: string      # 说话者姓名（仅当 type 为 dialogue 时必填）
+              content: string        # 舞台动作叙述 或 台词具体内容
+              direction: string      # [可选] 角色说台词时的语气、动作指导
+    </pre>
+
+    <h2>三、Schema 关键节点设计原因分析</h2>
+    
+    <h3>1. 全局 <code>characters</code> 角色档案的必要性</h3>
+    <p><strong>设计原因：</strong> 在传统剧本中，人物是在每场的对白里直接登场的。但本 Schema 在顶层抽离出了一个全局的角色列表。这样做是为了方便在 AI 处理完长小说后，自动帮作者梳理并归纳出一份<strong>人物设定表（Cast List）</strong>。它为每个角色标注了 <code>role</code>（如主角、反派、配角），使得制片方和选角导演能一眼评估出整部戏的演员体量，大大降低了通读小说的门槛。</p>
+
+    <h3>2. <code>acts</code> (幕) 与 <code>scenes</code> (场景) 的双层嵌套</h3>
+    <p><strong>设计原因：</strong> 小说通常按“章节”划分，而电影、网剧剧本则是按“场景”划分。单章小说往往包含大量的空间移动。本工具没有简单地把“一章”变成“一场”，而是引入了经典的<strong>好莱坞三幕式（Three-act structure）</strong>宏观结构，将章节智能打碎并重新归纳进 <code>acts</code> 节点。场景编号采用 <code>A1S1 (Act 1, Scene 1)</code> 格式，契合工业级影视工业标准，便于跨部门（导演组、摄影组）拉片和排戏。</p>
+
+    <h3>3. <code>beats</code> (戏剧节拍) 的多类型（Type）抽象</h3>
+    <p><strong>设计原因：</strong> 剧本内部的文本信息极度异构，包含环境描写、动作指导、潜台词和声音效果。我们将场景内部拆解为 <code>beats</code>（节拍）数组，并通过 <code>type</code> 字段严格限制为三种：</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type 类型</th>
+          <th>对应剧本元素</th>
+          <th>设计初衷</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>action</code></td>
+          <td>舞台说明/动作叙事</td>
+          <td>承接小说的环境描写与心理描写的具象化动作表达。</td>
+        </tr>
+        <tr>
+          <td><code>dialogue</code></td>
+          <td>角色台词对白</td>
+          <td>提取原著对白，绑定说话者 <code>character</code>，支持 <code>direction</code>（语气括号）。</td>
+        </tr>
+        <tr>
+          <td><code>transition</code></td>
+          <td>场景转场特效</td>
+          <td>提供诸如【淡出】、【闪回】等电影视听语言标记。</td>
+        </tr>
+      </tbody>
+    </tbody>
+  </table>
+
+    <div class="blockquote">
+      <strong>文档结论：</strong> 本 Schema 并非简单的“小说格式化”，而是将非结构化的长篇文学叙事，重构成了一套符合数字影视工业标准的、可被计算机程序解析并高亮渲染的数据模型。
+    </div>
+  </div>
+
+</body>
+</html>
