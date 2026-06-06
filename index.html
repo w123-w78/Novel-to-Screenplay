@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novel-to-Screenplay · AI 小说转剧本</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+
+  <!-- 报头导航 -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-top">
+        <span class="header-kicker">AI 创作工具 · 小说改编</span>
+        <a class="logo" href="#">Novel<em>2</em>Screenplay</a>
+        <nav class="nav">
+          <a href="#tool" class="nav-link active">工具</a>
+          <a href="docs/schema.html" class="nav-link" target="_blank">Schema 文档</a>
+          <a href="https://github.com/w123-w78/Novel-to-Screenplay"
+             class="nav-link nav-github" target="_blank">GitHub</a>
+        </nav>
+      </div>
+      <div class="header-bottom">
+        <span class="header-date" id="header-date"></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero -->
+    <section class="hero" id="tool">
+      <div class="hero-kicker">AI 驱动 &nbsp;·&nbsp; 一键转换 &nbsp;·&nbsp; YAML 输出</div>
+      <h1 class="hero-title">将小说<br/><em>变成剧本</em></h1>
+      <p class="hero-deck">
+        上传或粘贴三章以上的小说，AI 自动识别场景、人物、对白，<br/>
+        生成符合标准 YAML Schema 的结构化剧本初稿
+      </p>
+      <div class="hero-ornament">
+        <div class="hero-ornament-line"></div>
+        <div class="hero-ornament-dot"></div>
+        <div class="hero-ornament-line"></div>
+      </div>
+    </section>
+
+    <!-- 工具区 -->
+    <section class="tool-section">
+
+      <!-- API Key 未配置提示 -->
+      <div id="config-alert" class="config-alert hidden">
+        ⚠️ 检测到 API Key 未配置，请打开根目录下的
+        <code>config.js</code>，填入对应服务商的 Key 后刷新页面。
+      </div>
+
+      <!-- 主工具面板 -->
+      <div class="tool-grid">
+
+        <!-- 左：输入 -->
+        <div class="panel panel-input">
+          <div class="panel-head">
+            <span class="panel-head-label">INPUT</span>
+            <h2>输入小说文本</h2>
+            <span class="panel-head-hint" id="input-hint">至少 3 章节</span>
+          </div>
+          <div class="panel-bar">
+            <label class="btn-sm" for="file-upload" style="cursor:pointer">
+              📂 上传文件
+            </label>
+            <input type="file" id="file-upload" accept=".txt,.md" style="display:none" />
+            <button class="btn-sm" id="btn-sample">载入示例</button>
+            <button class="btn-sm" id="btn-clear">清空</button>
+          </div>
+          <textarea
+            id="novel-input"
+            class="novel-ta"
+            placeholder="在此粘贴小说文本，或点击「上传文件」读取 .txt 文件…
+
+支持章节格式：
+  第一章 章节标题
+  第二章 章节标题
+  第三章 章节标题"
+          ></textarea>
+          <div class="panel-foot">
+            <span id="char-count">0 字</span>
+            <span id="chapter-count" class="chap">检测到 0 章节</span>
+          </div>
+        </div>
+
+        <!-- 中：生成控制 -->
+        <div class="ctrl-col">
+          <button class="gen-btn" id="btn-convert">
+            <span class="gen-btn-arrow">→</span>
+            <span class="gen-btn-label">生成</span>
+          </button>
+          <div class="step-col">
+            <div class="step-row" id="step-1">
+              <span class="step-dot"></span>
+              <span class="step-nm">解析章节</span>
+            </div>
+            <div class="step-row" id="step-2">
+              <span class="step-dot"></span>
+              <span class="step-nm">提取人物</span>
+            </div>
+            <div class="step-row" id="step-3">
+              <span class="step-dot"></span>
+              <span class="step-nm">生成场景</span>
+            </div>
+            <div class="step-row" id="step-4">
+              <span class="step-dot"></span>
+              <span class="step-nm">格式输出</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：输出 -->
+        <div class="panel panel-output">
+          <div class="panel-head">
+            <span class="panel-head-label">OUTPUT</span>
+            <h2>YAML 剧本</h2>
+            <span class="panel-head-hint" id="output-hint">等待生成…</span>
+          </div>
+          <div class="panel-bar">
+            <button class="btn-sm" id="btn-copy" disabled>复制</button>
+            <button class="btn-sm" id="btn-download" disabled>⬇ 下载 .yaml</button>
+          </div>
+          <div class="output-scroll">
+            <pre id="yaml-output" class="yaml-pre"><span class="pre-ph">生成后的 YAML 剧本将显示在这里…
+
+screenplay:
+  meta:
+    title: '作品标题'
+    genre: '悬疑'
+  characters:
+    - name: '主角'
+      role: 'protagonist'
+  acts:
+    - act_number: 1
+      scenes:
+        - scene_id: 'A1S1'
+          beats:
+            - type: dialogue
+              ...</span></pre>
+          </div>
+        </div>
+
+      </div><!-- /tool-grid -->
+
+      <!-- 进度条 -->
+      <div id="progress-wrap" class="progress-wrap hidden">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <span id="progress-label" class="progress-label">处理中…</span>
+      </div>
+
+      <!-- 错误提示 -->
+      <div id="error-box" class="error-box hidden"></div>
+
+      <!-- 统计 -->
+      <div id="stats-strip" class="stats-strip hidden">
+        <div class="stat-cell">
+          <span class="stat-n" id="stat-acts">—</span>
+          <span class="stat-l">幕</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-n" id="stat-scenes">—</span>
+          <span class="stat-l">场景</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-n" id="stat-chars">—</span>
+          <span class="stat-l">角色</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-n" id="stat-dialogs">—</span>
+          <span class="stat-l">对话</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 工作原理 -->
+    <section class="how-section">
+      <div class="how-strip">
+        <div class="how-cell">
+          <div class="how-n">01</div>
+          <h3>章节识别</h3>
+          <p>自动检测"第X章""Chapter N"等标题格式，提取章节结构与正文内容</p>
+        </div>
+        <div class="how-cell">
+          <div class="how-n">02</div>
+          <h3>人物提取</h3>
+          <p>识别对话人物，归纳性格标签，生成独立角色档案供选角参考</p>
+        </div>
+        <div class="how-cell">
+          <div class="how-n">03</div>
+          <h3>场景分割</h3>
+          <p>分析时间地点变化与视角切换，将章节智能拆分为剧本场景单元</p>
+        </div>
+        <div class="how-cell">
+          <div class="how-n">04</div>
+          <h3>YAML 输出</h3>
+          <p>按标准 Schema 生成含对白、动作指导、舞台说明的结构化剧本</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <p class="footer-main">Novel-to-Screenplay</p>
+    <p class="footer-sub">
+      当前模型：<span id="footer-model">加载中…</span>
+      &nbsp;·&nbsp; 输出为 AI 初稿，建议人工润色
+    </p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="src/app.js"></script>
+
+  <script>
+    // 报头日期
+    document.getElementById('header-date').textContent =
+      new Date().toLocaleDateString('zh-CN', {
+        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+      });
+  </script>
+
+</body>
+</html>
