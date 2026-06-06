@@ -12,14 +12,16 @@ Novel-to-Screenplay: 小说自动改剧本工具
 代码已经按照要求分好了文件夹，干净整洁：
 ```text
 Novel-to-Screenplay/
+├── docs/
+│     └── schema.html                   # 剧本 YAML 格式的定义说明文档
+├── examples/
+│     └── screenplay_2026-06-06.yaml    #样例测试结果
 ├── src/
-│   ├── docs/
-│   │   └── schema.html      # 剧本 YAML 格式的定义说明文档
-│   ├── app.js               # 核心 JS 逻辑：调用大模型 API、处理流式传输
-│   └── style.css            # 界面样式表
-├── config.js                # 配置文件（配 API Key 和大模型接口地址）
-├── index.html               # 网页主页入口
-└── README.md                # 本说明文档
+│   ├── app.js                          # 核心 JS 逻辑：调用大模型 API、处理流式传输
+│   └── style.css                       # 界面样式表
+├── config.js                           # 配置文件（配 API Key 和大模型接口地址）
+├── index.html                          # 网页主页入口
+└── README.md                           # 本说明文档
 ```
 🛠️ 怎么在本地跑起来
 这个项目非常轻量，不需要安装任何 npm 包，也不需要搭建复杂的运行环境，开箱即用：
