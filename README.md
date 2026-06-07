@@ -4,9 +4,7 @@ Novel-to-Screenplay: 小说自动改剧本工具
 这是一个把小说文本自动转换成影视剧本格式的简单 Web 工具。核心功能是通过调用大模型 API，把长篇的小说按“幕、场景、节拍”重新梳理，并输出成更好读的 YAML 剧本格式。
 ```text
 📺 演示视频
-视频链接：点击查看演示视频:
-通过网盘分享的文件：demo讲解视频.mp4
-链接: https://pan.baidu.com/s/12NbueAXQXOhIdtgv5ik1nw?pwd=n27d 提取码: n27d
+视频链接：点击查看演示视频:https://www.bilibili.com/video/BV18tE46CEoa/?spm_id_from=333.1387.homepage.video_card.click&vd_source=28fda5fadb993dc1662abeed7576f25f
 ```
 📂 项目文件目录
 代码已经按照要求分好了文件夹，干净整洁：
